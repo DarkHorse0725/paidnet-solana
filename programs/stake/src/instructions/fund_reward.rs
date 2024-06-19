@@ -1,28 +1,21 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
 
-use crate::AUTHORITY_SEED;
-
 #[derive(Accounts)]
 pub struct FundReward<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
 
-    pub reward_mint: Box<Account<'info, Mint>>,
+    pub reward_mint: Account<'info, Mint>,
 
     #[account(mut, token::mint = reward_mint)]
-    pub token_account: Box<Account<'info, TokenAccount>>,
-
-    /// CHECK: This is not dangerous because we don't read or write from this account
-    #[account(seeds = [AUTHORITY_SEED, reward_mint.key().as_ref()], bump)]
-    pub authority: AccountInfo<'info>,
+    pub token_account: Account<'info, TokenAccount>,
 
     #[account(
-    mut,
-    token::mint = reward_mint,
-    token::authority = authority,
-  )]
-    pub reward_port: Box<Account<'info, TokenAccount>>,
+      mut,
+      token::mint = reward_mint,
+    )]
+    pub reward_port: Account<'info, TokenAccount>,
     pub token_program: Program<'info, Token>,
 }
 
