@@ -15,7 +15,4 @@ declare_id!("4w9TECYbA3bpQ8eDZbggznQLgssPACDHFM3BQMWr3vot");
 pub mod stake {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        initialize::handler(ctx)
-    }
 }

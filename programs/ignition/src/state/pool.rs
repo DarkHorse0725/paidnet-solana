@@ -41,6 +41,12 @@ pub struct Pool {
   pub bump: u8,
 }
 
+impl Pool {
+    pub fn calculate_offer_amount(&self, purchase_amount: u64) -> u64 {
+      let offer_amount: u64 = purchase_amount * self.offer_token.rate * (10 ^ self.offer_token.decimals as u64) / (10 ^ self.purchase_token.decimals as u64);
+      return offer_amount;
+    }
+}
 
 #[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
 pub struct OfferToken {

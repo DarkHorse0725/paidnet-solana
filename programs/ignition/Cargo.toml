@@ -19,3 +19,4 @@ default = []
 anchor-lang = { version = "0.29.0", features = ["init-if-needed"]}
 anchor-spl = "0.29.0"
 spl-math = "0.2.0"
+stake = { path = "../stake", features = ["cpi"]}

@@ -1072,6 +1072,7 @@ dependencies = [
  "anchor-lang",
  "anchor-spl",
  "spl-math",
+ "stake",
 ]
 
 [[package]]
@@ -2289,6 +2290,13 @@ dependencies = [
  "spl-discriminator",
  "spl-pod",
  "spl-program-error",
+]
+
+[[package]]
+name = "stake"
+version = "0.1.0"
+dependencies = [
+ "anchor-lang",
 ]
 
 [[package]]
