@@ -6,6 +6,7 @@ skip-lint = false
 
 [programs.localnet]
 ignition = "BnwF9UvkZGPzoAm8GbuUxkfgHLB9tpK5zx25tv715J6a"
+stake = "4w9TECYbA3bpQ8eDZbggznQLgssPACDHFM3BQMWr3vot"
 
 [registry]
 url = "https://api.apr.dev"

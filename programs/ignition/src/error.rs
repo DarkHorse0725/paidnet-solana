@@ -36,4 +36,6 @@ pub enum ErrCode {
     AlreadyClaimedTotoalAmount,
     #[msg("You did not stake enough token")]
     NotEnoughStaker,
+    #[msg("General calculation failure due to overflow or underflow")]
+    CalculationFailure,
 }
