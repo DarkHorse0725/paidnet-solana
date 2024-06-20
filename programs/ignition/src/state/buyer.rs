@@ -9,4 +9,5 @@ pub struct Buyer {
   // vesting
   pub total_amount: u64,
   pub claimed_amount: u64,
+  pub refunded: bool,
 }

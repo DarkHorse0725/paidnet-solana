@@ -39,6 +39,7 @@ pub struct Pool {
     pub claimable: bool,
     pub emergency_cancelled: bool,
     pub private_raise: bool,
+    pub udpate_tge_attempts: u16,
 
     pub is_token22: bool,
     pub bump: u8,

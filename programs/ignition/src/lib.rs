@@ -21,6 +21,7 @@ pub mod ignition {
         offer_decimals: u8,
         purchase_decimals: u8,
         is_token22: bool,
+        private: bool,
         bump: u8,
     ) -> Result<()> {
         create_pool_handler(
@@ -29,6 +30,7 @@ pub mod ignition {
             offer_decimals,
             purchase_decimals,
             is_token22,
+            private,
             bump,
         )
     }
@@ -59,5 +61,17 @@ pub mod ignition {
 
     pub fn withdraw_purchase(ctx: Context<WithdrawPurchase>) -> Result<()> {
         withdraw_purchase_handler(ctx)
+    }
+
+    pub fn refund_purchase(ctx: Context<RefundPurchase>) -> Result<()> {
+        refund_purchase_handler(ctx)
+    }
+
+    pub fn emergency_cancel(ctx: Context<EmergencyCancel>) -> Result<()> {
+        emergency_cancel_handler(ctx)
+    }
+
+    pub fn update_tge_date(ctx: Context<UpdateTgeDate>, tge_date: i64) -> Result<()> {
+        update_tge_date_handler(ctx, tge_date)
     }
 }

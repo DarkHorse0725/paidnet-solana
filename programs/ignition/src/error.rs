@@ -38,4 +38,6 @@ pub enum ErrCode {
     NotEnoughStaker,
     #[msg("General calculation failure due to overflow or underflow")]
     CalculationFailure,
+    #[msg("Not refundable")]
+    NotRefundable,
 }

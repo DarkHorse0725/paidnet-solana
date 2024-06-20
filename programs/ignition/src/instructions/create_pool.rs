@@ -51,6 +51,7 @@ pub fn create_pool_handler(
     offer_decimals: u8,
     purchase_decimals: u8,
     is_token22: bool,
+    private: bool,
     bump: u8,
 ) -> Result<()> {
     let pool: &mut Box<Account<Pool>> = &mut ctx.accounts.pool;
@@ -104,6 +105,7 @@ pub fn create_pool_handler(
     pool.purchase_token.decimals = purchase_decimals;
     pool.is_token22 = is_token22;
     pool.total_fee = 0;
+    pool.private_raise = private;
     pool.bump = bump;
     Ok(())
 }
