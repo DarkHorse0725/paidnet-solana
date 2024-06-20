@@ -93,5 +93,6 @@ pub fn buy_in_early_pool_handler(ctx: Context<BuyInEarlyPool>, amount: u64) -> R
     pool.total_sold += offer_amount;
     pool.collect_in_early_pool += amount - fee_amount;
     pool.sold_in_early_pool += offer_amount;
+    pool.total_fee += fee_amount;
     Ok(())
 }

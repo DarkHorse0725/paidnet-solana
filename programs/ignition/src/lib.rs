@@ -23,6 +23,41 @@ pub mod ignition {
         is_token22: bool,
         bump: u8,
     ) -> Result<()> {
-        create_pool_handler(ctx, uints, offer_decimals, purchase_decimals, is_token22, bump)
+        create_pool_handler(
+            ctx,
+            uints,
+            offer_decimals,
+            purchase_decimals,
+            is_token22,
+            bump,
+        )
+    }
+
+    pub fn fund_offer(ctx: Context<FundOffer>, amount: u64) -> Result<()> {
+        fund_offer_handler(ctx, amount)
+    }
+
+    pub fn buy_in_early_pool(ctx: Context<BuyInEarlyPool>, amount: u64) -> Result<()> {
+        buy_in_early_pool_handler(ctx, amount)
+    }
+
+    pub fn buy_in_open_pool(ctx: Context<BuyInOpenPool>, amount: u64) -> Result<()> {
+        buy_in_open_pool_handler(ctx, amount)
+    }
+
+    pub fn claim_offer(ctx: Context<ClaimOffer>) -> Result<()> {
+        claim_offer_handler(ctx)
+    }
+
+    pub fn toggle_claimable(ctx: Context<ToggleClaimable>) -> Result<()> {
+        toggle_claimable_handler(ctx)
+    }
+
+    pub fn withdraw_offer(ctx: Context<WithdrawOffer>) -> Result<()> {
+        withdraw_offer_handler(ctx)
+    }
+
+    pub fn withdraw_purchase(ctx: Context<WithdrawPurchase>) -> Result<()> {
+        withdraw_purchase_handler(ctx)
     }
 }

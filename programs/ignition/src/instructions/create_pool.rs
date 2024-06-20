@@ -103,6 +103,7 @@ pub fn create_pool_handler(
     pool.purchase_token.mint = ctx.accounts.purchase_mint.key();
     pool.purchase_token.decimals = purchase_decimals;
     pool.is_token22 = is_token22;
+    pool.total_fee = 0;
     pool.bump = bump;
     Ok(())
 }

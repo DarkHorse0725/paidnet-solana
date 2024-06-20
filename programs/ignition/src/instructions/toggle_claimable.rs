@@ -1,0 +1,18 @@
+use anchor_lang::prelude::*;
+
+use crate::Pool;
+
+#[derive(Accounts)]
+pub struct ToggleClaimable<'info> {
+    #[account(mut)]
+    pub owner: Signer<'info>,
+
+    #[account(mut, has_one = owner)]
+    pub pool: Box<Account<'info, Pool>>,
+}
+
+pub fn toggle_claimable_handler(ctx: Context<ToggleClaimable>) -> Result<()> {
+    let pool: &mut Box<Account<Pool>> = &mut ctx.accounts.pool;
+    pool.claimable = !pool.claimable;
+    Ok(())
+}

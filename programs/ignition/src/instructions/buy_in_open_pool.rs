@@ -79,5 +79,6 @@ pub fn buy_in_open_pool_handler(ctx: Context<BuyInOpenPool>, amount: u64) -> Res
     let pool: &mut Box<Account<Pool>> = &mut ctx.accounts.pool;
     pool.total_collect_amount += amount - fee_amount;
     pool.total_sold += offer_amount;
+    pool.total_fee += fee_amount;
     Ok(())
 }
