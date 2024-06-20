@@ -6,4 +6,6 @@ pub enum ErrorCode {
     CustomError,
     #[msg("Already Initialized")]
     Initialized,
+    #[msg("Invalid unstake amount")]
+    InvalidUnstakeAmount,
 }
