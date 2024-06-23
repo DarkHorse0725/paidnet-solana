@@ -41,8 +41,30 @@ pub struct CreatePool<'info> {
 }
 
 /**
+ * pool containers 2 sub pools: early pool and open pool,
  * @param uints Array of pool informaton includes:
- *
+ *  max buy for kyc user
+ *  max buy for not kyc user
+ *  token fee percentage
+ *  early pool participant fee
+ *  open pool participant fee
+ *  early pool proportion
+ *  open pool proportion
+ *  total raise amount
+ *  early pool start time
+ *  open pool start time
+ *  open pool end time
+ *  rate of offer token
+ *  tge date
+ *  tge percentage
+ *  vesting cliff
+ *  vesting frequency
+ *  number of vesting
+ * @param decimals of offer token
+ * @param decimals of purchase token
+ * @param is token22, true if ido token is token2022,
+ * @param private, true if it is private sale
+ * @Param bump, authority bump
  */
 
 pub fn create_pool_handler(
