@@ -100,5 +100,7 @@ pub fn unstake_handler(ctx: Context<Unstake>, amount: u64) -> Result<()> {
     staker.total_amount -= amount;
     let now: i64 = Clock::get().unwrap().unix_timestamp;
     staker.last_update = now;
+    let app_state: &mut Box<Account<AppState>> = &mut ctx.accounts.app_state;
+    app_state.total_staked -= amount as u128;
     Ok(())
 }

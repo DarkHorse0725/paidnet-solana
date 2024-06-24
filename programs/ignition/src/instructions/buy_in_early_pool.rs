@@ -36,7 +36,6 @@ pub struct BuyInEarlyPool<'info> {
         payer = signer,
         seeds = [b"purchase-vault", pool.key().as_ref()],
         bump,
-        rent_exempt = enforce,
         token::mint = purchase_mint,
         token::authority = authority
     )]
@@ -70,7 +69,7 @@ pub fn buy_in_early_pool_handler(ctx: Context<BuyInEarlyPool>, amount: u64) -> R
         return err!(ErrCode::NotFunded);
     }
     let fee_amount: u64 =
-        amount * ctx.accounts.pool.early_participant_fee as u64 / DENOMINATOR as u64;
+        amount / DENOMINATOR as u64 * ctx.accounts.pool.early_participant_fee as u64;
     let total_amount: u64 = amount - fee_amount + ctx.accounts.buyer.total_amount;
     if total_amount > ctx.accounts.pool.max_buy_in_early_pool {
         return err!(ErrCode::ExceedMaxPurchaseAmountForEarlyAccess);

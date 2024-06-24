@@ -15,7 +15,7 @@ pub struct FundReward<'info> {
       mut,
       token::mint = reward_mint,
     )]
-    pub reward_port: Account<'info, TokenAccount>,
+    pub reward_pot: Account<'info, TokenAccount>,
     pub token_program: Program<'info, Token>,
 }
 
@@ -25,7 +25,7 @@ impl<'info> FundReward<'info> {
             self.token_program.to_account_info(),
             Transfer {
                 from: self.token_account.to_account_info(),
-                to: self.reward_port.to_account_info(),
+                to: self.reward_pot.to_account_info(),
                 authority: self.signer.to_account_info(),
             },
         )

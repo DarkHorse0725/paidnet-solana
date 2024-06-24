@@ -45,6 +45,7 @@ pub struct CreatePool<'info> {
  * @param uints Array of pool informaton includes:
  *  max buy for kyc user
  *  max buy for not kyc user
+ *  max buy in ealry pool
  *  token fee percentage
  *  early pool participant fee
  *  open pool participant fee
@@ -69,7 +70,7 @@ pub struct CreatePool<'info> {
 
 pub fn create_pool_handler(
     ctx: Context<CreatePool>,
-    uints: [u64; 17],
+    uints: [u64; 18],
     offer_decimals: u8,
     purchase_decimals: u8,
     is_token22: bool,
@@ -77,45 +78,46 @@ pub fn create_pool_handler(
     bump: u8,
 ) -> Result<()> {
     let pool: &mut Box<Account<Pool>> = &mut ctx.accounts.pool;
-    if uints[2] as u16 > DENOMINATOR {
+    if uints[3] as u16 > DENOMINATOR {
         return err!(ErrCode::InvalidTokenFeePercentage);
     }
     // early pool proportion
-    if uints[5] as u16 > DENOMINATOR {
-        return err!(ErrCode::InvalidTokenFeePercentage);
-    }
-    // open pool proportion
     if uints[6] as u16 > DENOMINATOR {
         return err!(ErrCode::InvalidTokenFeePercentage);
     }
-    if uints[8] > uints[9] {
-        return err!(ErrCode::InvalidTime);
+    // open pool proportion
+    if uints[7] as u16 > DENOMINATOR {
+        return err!(ErrCode::InvalidTokenFeePercentage);
     }
     if uints[9] > uints[10] {
         return err!(ErrCode::InvalidTime);
     }
-    if uints[10] > uints[12] {
+    if uints[10] > uints[11] {
+        return err!(ErrCode::InvalidTime);
+    }
+    if uints[11] > uints[13] {
         return err!(ErrCode::InvalidTime);
     }
     pool.max_buy_for_kyc_user = uints[0];
     pool.max_buy_for_not_kyc_user = uints[1];
-    pool.token_fee_percentage = uints[2] as u16;
-    pool.early_participant_fee = uints[3] as u16;
-    pool.open_participant_fee = uints[4] as u16;
-    pool.early_pool_proportion = uints[5] as u16;
-    pool.open_pool_proportion = uints[6] as u16;
-    pool.total_raise_amount = uints[7];
-    pool.early_start = uints[8] as i64;
-    pool.early_end = uints[9] as i64;
-    pool.open_start = uints[9] as i64;
-    pool.open_end = uints[10] as i64;
+    pool.max_buy_in_early_pool = uints[2];
+    pool.token_fee_percentage = uints[3] as u16;
+    pool.early_participant_fee = uints[4] as u16;
+    pool.open_participant_fee = uints[5] as u16;
+    pool.early_pool_proportion = uints[6] as u16;
+    pool.open_pool_proportion = uints[7] as u16;
+    pool.total_raise_amount = uints[8];
+    pool.early_start = uints[9] as i64;
+    pool.early_end = uints[10] as i64;
+    pool.open_start = uints[10] as i64;
+    pool.open_end = uints[11] as i64;
 
-    pool.offer_token.rate = uints[11];
-    pool.tge_date = uints[12] as i64;
-    pool.tge_percentage = uints[13] as u16;
-    pool.vesting_cliff = uints[14] as i64;
-    pool.vesting_frequency = uints[15] as i64;
-    pool.number_of_vesting = uints[16] as u16;
+    pool.offer_token.rate = uints[12];
+    pool.tge_date = uints[13] as i64;
+    pool.tge_percentage = uints[14] as u16;
+    pool.vesting_cliff = uints[15] as i64;
+    pool.vesting_frequency = uints[16] as i64;
+    pool.number_of_vesting = uints[17] as u16;
     pool.owner = ctx.accounts.creator.key();
     pool.total_collect_amount = 0;
     pool.total_sold = 0;

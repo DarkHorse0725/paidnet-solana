@@ -1,7 +1,6 @@
 use crate::{error::ErrCode, Buyer, Pool, DENOMINATOR};
 use anchor_lang::prelude::*;
 use anchor_spl::token::{transfer, Mint, Token, TokenAccount, Transfer};
-use stake::Staker;
 use std::mem::size_of;
 
 #[derive(Accounts)]
@@ -13,9 +12,6 @@ pub struct BuyInOpenPool<'info> {
 
     #[account(mut, token::mint = purchase_mint)]
     pub user_purchase_token: Box<Account<'info, TokenAccount>>,
-
-    #[account(constraint = staker.user == signer.key())]
-    pub staker: Box<Account<'info, Staker>>,
 
     /// CHECK: This is not dangerous because we don't read or write from this account
     #[account(seeds = [b"authority", pool.key().as_ref()], bump)]

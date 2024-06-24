@@ -17,7 +17,7 @@ pub mod ignition {
 
     pub fn create_pool(
         ctx: Context<CreatePool>,
-        uints: [u64; 17],
+        uints: [u64; 18],
         offer_decimals: u8,
         purchase_decimals: u8,
         is_token22: bool,

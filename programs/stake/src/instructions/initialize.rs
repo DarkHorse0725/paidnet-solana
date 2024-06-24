@@ -26,7 +26,7 @@ pub struct Initialize<'info> {
       seeds = [REWARD_POT_SEED],
       bump,
     )]
-    pub reward_port: Box<Account<'info, TokenAccount>>,
+    pub reward_pot: Box<Account<'info, TokenAccount>>,
 
     #[account(
       init,

@@ -43,7 +43,7 @@ impl<'info> WithdrawPurchase<'info> {
                 reward_mint: self.purchase_mint.to_account_info(),
                 signer: self.authority.to_account_info(),
                 token_account: self.purchase_vault.to_account_info(),
-                reward_port: self.reward_pot.to_account_info(),
+                reward_pot: self.reward_pot.to_account_info(),
                 token_program: self.token_program.to_account_info(),
             },
         )

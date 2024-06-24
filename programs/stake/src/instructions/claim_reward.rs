@@ -21,7 +21,7 @@ pub struct ClaimReward<'info> {
       mut,
       token::mint = reward_mint,
     )]
-    pub reward_port: Account<'info, TokenAccount>,
+    pub reward_pot: Account<'info, TokenAccount>,
 
     #[account(mut, has_one = user)]
     pub staker: Box<Account<'info, Staker>>,
@@ -34,7 +34,7 @@ impl<'info> ClaimReward<'info> {
         CpiContext::new(
             self.token_program.to_account_info(),
             Transfer {
-                from: self.reward_port.to_account_info(),
+                from: self.reward_pot.to_account_info(),
                 to: self.user_reward_token.to_account_info(),
                 authority: self.authority.to_account_info(),
             },
