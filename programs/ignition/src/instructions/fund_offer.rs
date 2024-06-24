@@ -22,6 +22,8 @@ pub struct FundOffer<'info> {
     pub authority: AccountInfo<'info>,
 
     #[account(
+        init_if_needed,
+        payer = owner,
         seeds = [b"offer-vault", pool.key().as_ref()],
         bump,
         token::mint = offer_mint,
@@ -32,6 +34,7 @@ pub struct FundOffer<'info> {
     #[account(mut, has_one = owner)]
     pub pool: Box<Account<'info, Pool>>,
     pub token_program: Interface<'info, token_interface::TokenInterface>,
+    pub system_program: Program<'info, System>,
 }
 
 impl<'info> FundOffer<'info> {

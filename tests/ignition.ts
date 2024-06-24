@@ -1,6 +1,7 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
 import { Ignition } from '../target/types/ignition';
+import { Stake } from '../target/types/stake';
 import { Keypair, PublicKey } from "@solana/web3.js";
 import { BN } from "bn.js";
 import { createMint, getOrCreateAssociatedTokenAccount, mintTo } from "@solana/spl-token";
@@ -12,12 +13,13 @@ describe("ignition", () => {
   const connection = provider.connection;
 
   const program = anchor.workspace.Ignition as Program<Ignition>;
+  const stakeProgram = anchor.workspace.Stake as Program<Stake>;
 
   let now: number;
   let offerMint: PublicKey;
   let purchaseMint: PublicKey;
   let offerTokenAccount: PublicKey;
-  let purchaseTokenAccoutn: PublicKey;
+  let purchaseTokenAccount: PublicKey;
 
   const poolKeypair = Keypair.generate();
   const pool = poolKeypair.publicKey;
@@ -77,7 +79,7 @@ describe("ignition", () => {
       owner.publicKey
     );
 
-    purchaseTokenAccoutn = purchaseAccount.address;
+    purchaseTokenAccount = purchaseAccount.address;
 
     await mintTo(
       connection,
@@ -135,4 +137,26 @@ describe("ignition", () => {
     }).signers([poolKeypair]).rpc().catch(e => console.log(e));
     console.log(tx);
   });
+
+  it ("fund offer", async () => {
+    const tx = await program.methods.fundOffer(
+      new BN(1000000 * (10 ** offerDecimals))
+    ).accounts({
+      offerMint,
+      ownerOfferToken: offerTokenAccount,
+      authority,
+      offerVault,
+      pool
+    }).rpc().catch(e => console.log(e));
+    console.log(tx);
+  })
+
+  // it("buy in early pool", async () => {
+    // const tx = await program.methods.buyInEarlyPool(
+    //   new BN(100 * (10 ** purchaseDecimals))
+    // ).accounts({
+    //   purchaseMint,
+      
+    // }).rpc();
+  // });
 })
