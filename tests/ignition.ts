@@ -41,7 +41,25 @@ describe("ignition", () => {
     program.programId
   )[0];
 
+  const purchaseVault = PublicKey.findProgramAddressSync(
+    [
+      anchor.utils.bytes.utf8.encode("purchase-vault"),
+      pool.toBuffer()
+    ],
+    program.programId
+  )[0];
   const owner = provider.wallet as NodeWallet;
+
+  const buyer = PublicKey.findProgramAddressSync(
+    [
+      anchor.utils.bytes.utf8.encode("buyer"),
+      pool.toBuffer(),
+      owner.publicKey.toBuffer()
+    ],
+    program.programId
+  )[0];
+
+  
 
   const offerDecimals = 9;
   const purchaseDecimals = 6;
@@ -114,10 +132,10 @@ describe("ignition", () => {
         new BN(5000),
         new BN(2000 * (10 ** purchaseDecimals)),
         new BN(now + 1),
-        new BN(now + 2),
-        new BN(now + 4),
+        new BN(now + 10),
+        new BN(now + 20),
         new BN(100),
-        new BN(now + 6),
+        new BN(now + 30),
         new BN(1000),
         new BN(1),
         new BN(1),
@@ -151,12 +169,17 @@ describe("ignition", () => {
     console.log(tx);
   })
 
-  // it("buy in early pool", async () => {
-    // const tx = await program.methods.buyInEarlyPool(
-    //   new BN(100 * (10 ** purchaseDecimals))
-    // ).accounts({
-    //   purchaseMint,
-      
-    // }).rpc();
-  // });
+  it("buy in early pool", async () => {
+    const tx = await program.methods.buyInEarlyPool(
+      new BN(100 * (10 ** purchaseDecimals))
+    ).accounts({
+      purchaseMint,
+      userPurchaseToken: purchaseTokenAccount,
+      authority,
+      buyer,
+      purchaseVault,
+      pool,
+    }).rpc();
+    console.log(tx)
+  });
 })
