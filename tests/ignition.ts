@@ -132,10 +132,10 @@ describe("ignition", () => {
         new BN(5000),
         new BN(2000 * (10 ** purchaseDecimals)),
         new BN(now + 1),
-        new BN(now + 10),
-        new BN(now + 20),
+        new BN(now + 4),
+        new BN(now + 7),
         new BN(100),
-        new BN(now + 30),
+        new BN(now + 10),
         new BN(1000),
         new BN(1),
         new BN(1),
@@ -171,7 +171,7 @@ describe("ignition", () => {
 
   it("buy in early pool", async () => {
     const tx = await program.methods.buyInEarlyPool(
-      new BN(100 * (10 ** purchaseDecimals))
+      new BN(1000 * (10 ** purchaseDecimals))
     ).accounts({
       purchaseMint,
       userPurchaseToken: purchaseTokenAccount,
@@ -181,5 +181,8 @@ describe("ignition", () => {
       pool,
     }).rpc();
     console.log(tx)
+  });
+  it ("buy in open pool", async () => {
+
   });
 })

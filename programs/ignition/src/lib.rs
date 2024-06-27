@@ -74,4 +74,8 @@ pub mod ignition {
     pub fn update_tge_date(ctx: Context<UpdateTgeDate>, tge_date: i64) -> Result<()> {
         update_tge_date_handler(ctx, tge_date)
     }
+
+    pub fn finalize_pool(ctx: Context<FinalizePool>) -> Result<()> {
+        finalize_pool_handler(ctx)
+    }
 }
