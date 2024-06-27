@@ -15,8 +15,8 @@ pub struct BuyInEarlyPool<'info> {
     #[account(mut, token::mint = purchase_mint)]
     pub user_purchase_token: Box<Account<'info, TokenAccount>>,
 
-    // #[account(constraint = staker.user == signer.key())]
-    // pub staker: Box<Account<'info, Staker>>,
+    #[account(constraint = staker.user == signer.key())]
+    pub staker: Box<Account<'info, Staker>>,
 
     /// CHECK: This is not dangerous because we don't read or write from this account
     #[account(seeds = [b"authority", pool.key().as_ref()], bump)]
@@ -75,9 +75,9 @@ pub fn buy_in_early_pool_handler(ctx: Context<BuyInEarlyPool>, amount: u64) -> R
         return err!(ErrCode::ExceedMaxPurchaseAmountForEarlyAccess);
     }
 
-    // if ctx.accounts.staker.total_amount < MIN_STAKE_AMOUNT {
-    //     return err!(ErrCode::NotEnoughStaker);
-    // }
+    if ctx.accounts.staker.total_amount < MIN_STAKE_AMOUNT {
+        return err!(ErrCode::NotEnoughStaker);
+    }
     transfer(ctx.accounts.transfer_ctx(), amount)?;
     let buyer: &mut Box<Account<Buyer>> = &mut ctx.accounts.buyer;
     buyer.principal += amount - fee_amount;

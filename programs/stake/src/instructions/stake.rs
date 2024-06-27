@@ -87,6 +87,7 @@ pub fn stake_handler(ctx: Context<Stake>, amount: u64) -> Result<()> {
     app_state.total_staked += amount as u128;
     if staker.total_amount == 0 {
       app_state.staker_counts += 1;
+      staker.user = ctx.accounts.signer.key();
     }
     staker.total_amount += amount;
     let now: i64 = Clock::get().unwrap().unix_timestamp;

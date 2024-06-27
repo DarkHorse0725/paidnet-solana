@@ -1,11 +1,11 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
 import { Ignition } from '../target/types/ignition';
-import { Stake } from '../target/types/stake';
 import { Keypair, PublicKey } from "@solana/web3.js";
 import { BN } from "bn.js";
 import { createMint, getOrCreateAssociatedTokenAccount, mintTo } from "@solana/spl-token";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
+import { initStake, stake, staker } from './stake';
 
 describe("ignition", () => {
   const provider = anchor.AnchorProvider.env();
@@ -13,8 +13,7 @@ describe("ignition", () => {
   const connection = provider.connection;
 
   const program = anchor.workspace.Ignition as Program<Ignition>;
-  const stakeProgram = anchor.workspace.Stake as Program<Stake>;
-
+  
   let now: number;
   let offerMint: PublicKey;
   let purchaseMint: PublicKey;
@@ -105,7 +104,7 @@ describe("ignition", () => {
       offerMint,
       offerAccount.address,
       owner.payer,
-      BigInt(1000000 * (10 ** offerDecimals))
+      BigInt(1000000000 * (10 ** offerDecimals))
     );
 
     await mintTo(
@@ -114,9 +113,19 @@ describe("ignition", () => {
       purchaseMint,
       purchaseAccount.address,
       owner.payer,
-      BigInt(1000000 * (10 ** purchaseDecimals))
+      BigInt(1000000000 * (10 ** purchaseDecimals))
     );
 
+    await initStake(
+      purchaseMint,
+      offerMint,
+      purchaseDecimals,
+      offerDecimals
+    );
+    await stake(
+      offerMint,
+      offerDecimals
+    );
   })
 
   it("create pool", async () => {
@@ -152,7 +161,7 @@ describe("ignition", () => {
       authority,
       offerVault,
       pool
-    }).signers([poolKeypair]).rpc().catch(e => console.log(e));
+    }).signers([poolKeypair]).rpc();
     console.log(tx);
   });
 
@@ -165,9 +174,11 @@ describe("ignition", () => {
       authority,
       offerVault,
       pool
-    }).rpc().catch(e => console.log(e));
+    }).rpc();
     console.log(tx);
-  })
+  });
+
+  
 
   it("buy in early pool", async () => {
     const tx = await program.methods.buyInEarlyPool(
@@ -177,6 +188,7 @@ describe("ignition", () => {
       userPurchaseToken: purchaseTokenAccount,
       authority,
       buyer,
+      staker,
       purchaseVault,
       pool,
     }).rpc();
