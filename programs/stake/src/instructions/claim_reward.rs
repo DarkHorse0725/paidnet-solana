@@ -8,8 +8,10 @@ pub struct ClaimReward<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
 
+    // mint address of reward token
     pub reward_mint: Box<Account<'info, Mint>>,
 
+    // reward token account of user, usually stable token like usdc, usdt
     #[account(mut)]
     pub user_reward_token: Box<Account<'info, TokenAccount>>,
 
@@ -17,12 +19,14 @@ pub struct ClaimReward<'info> {
     #[account(seeds = [AUTHORITY_SEED, app_state.key().as_ref()], bump)]
     pub authority: AccountInfo<'info>,
 
+    // reward pot of stake
     #[account(
       mut,
       token::mint = reward_mint,
     )]
     pub reward_pot: Account<'info, TokenAccount>,
 
+    // staker account, signer must be same with user of staker account
     #[account(mut, has_one = user)]
     pub staker: Box<Account<'info, Staker>>,
     pub token_program: Program<'info, Token>,
@@ -42,6 +46,11 @@ impl<'info> ClaimReward<'info> {
     }
 }
 
+
+/**
+ * staker can claim their reward
+ * when claim reward, staking date will be updated
+ */
 pub fn claim_reward_handler(ctx: Context<ClaimReward>) -> Result<()> {
     let amount: u64 = ctx.accounts.app_state.calculate_reward(
         ctx.accounts.staker.total_amount,

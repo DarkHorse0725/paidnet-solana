@@ -5,8 +5,6 @@ use anchor_spl::{
     token_interface,
 };
 
-use std::mem::size_of;
-
 use crate::{error::ErrorCode, AppState, Staker, AUTHORITY_SEED, STAKER_SEED, STAKE_VAULT_SEED};
 
 #[derive(Accounts)]
@@ -14,8 +12,10 @@ pub struct Unstake<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
 
+    // mint address of stake token
     pub stake_mint: Box<InterfaceAccount<'info, token_interface::Mint>>,
 
+    // stake token account of user
     #[account(mut)]
     pub user_stake_token: Box<InterfaceAccount<'info, token_interface::TokenAccount>>,
 
@@ -23,6 +23,7 @@ pub struct Unstake<'info> {
     #[account(seeds = [AUTHORITY_SEED, app_state.key().as_ref()], bump)]
     pub authority: AccountInfo<'info>,
 
+    // stake vault of stake program
     #[account(
       init_if_needed,
       payer = signer,
@@ -33,13 +34,13 @@ pub struct Unstake<'info> {
     )]
     pub stake_vault: Box<InterfaceAccount<'info, token_interface::TokenAccount>>,
 
+    // app state account of stake program
     #[account(mut)]
     pub app_state: Box<Account<'info, AppState>>,
 
+    // staker account of user
     #[account(
-      init_if_needed,
-      payer = signer,
-      space = size_of::<Staker>() + 8,
+      mut,
       seeds = [STAKER_SEED, signer.key().as_ref()],
       bump,
     )]
@@ -72,6 +73,10 @@ impl<'info> Unstake<'info> {
     }
 }
 
+/**
+ * they can unstake their staked token
+ * amount must be smaller than the amount they staked
+ */
 pub fn unstake_handler(ctx: Context<Unstake>, amount: u64) -> Result<()> {
     if amount > ctx.accounts.staker.total_amount {
         return err!(ErrorCode::InvalidUnstakeAmount);

@@ -6,11 +6,14 @@ pub struct FundReward<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
 
+    // mint address of reward token
     pub reward_mint: Account<'info, Mint>,
 
+    // token account of mint
     #[account(mut, token::mint = reward_mint)]
     pub token_account: Account<'info, TokenAccount>,
 
+    // reward pot of stake program
     #[account(
       mut,
       token::mint = reward_mint,
@@ -32,6 +35,9 @@ impl<'info> FundReward<'info> {
     }
 }
 
+/**
+ * This funcition will be used for cpi
+ */
 pub fn fund_reward_handler(ctx: Context<FundReward>, amount: u64) -> Result<()> {
     token::transfer(ctx.accounts.transfer_ctx(), amount)?;
     Ok(())

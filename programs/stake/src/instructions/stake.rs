@@ -14,8 +14,10 @@ pub struct Stake<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
 
+    // mint address of stake token
     pub stake_mint: Box<InterfaceAccount<'info, token_interface::Mint>>,
 
+    // stake token account of staker
     #[account(mut)]
     pub user_stake_token: Box<InterfaceAccount<'info, token_interface::TokenAccount>>,
 
@@ -23,6 +25,7 @@ pub struct Stake<'info> {
     #[account(seeds = [AUTHORITY_SEED, app_state.key().as_ref()], bump)]
     pub authority: AccountInfo<'info>,
 
+    // stake token vault of stake program
     #[account(
       init_if_needed,
       payer = signer,
@@ -33,9 +36,11 @@ pub struct Stake<'info> {
     )]
     pub stake_vault: Box<InterfaceAccount<'info, token_interface::TokenAccount>>,
 
+    // app state account of stake program
     #[account(mut)]
     pub app_state: Box<Account<'info, AppState>>,
 
+    // staker account of user
     #[account(
       init_if_needed,
       payer = signer,
@@ -71,6 +76,11 @@ impl<'info> Stake<'info> {
         )
     }
 }
+
+/**
+ * They can stake stake token
+ * @param amount to stake
+ */
 
 pub fn stake_handler(ctx: Context<Stake>, amount: u64) -> Result<()> {
     if ctx.accounts.app_state.stake_token.is_token2 {

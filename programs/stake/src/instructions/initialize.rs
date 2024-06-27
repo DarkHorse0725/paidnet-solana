@@ -10,6 +10,7 @@ pub struct Initialize<'info> {
     #[account(mut)]
     pub creator: Signer<'info>,
 
+    // mint address of reward token
     pub reward_mint: Box<Account<'info, Mint>>,
     /// CHECK:
     pub stake_mint: UncheckedAccount<'info>,
@@ -18,6 +19,7 @@ pub struct Initialize<'info> {
     #[account(seeds = [AUTHORITY_SEED, app_state.key().as_ref()], bump)]
     pub authority: AccountInfo<'info>,
 
+    // reward token pot of stake program
     #[account(
       init,
       payer = creator,
@@ -28,6 +30,7 @@ pub struct Initialize<'info> {
     )]
     pub reward_pot: Box<Account<'info, TokenAccount>>,
 
+    // app state of account of stake program
     #[account(
       init,
       payer = creator,
@@ -39,6 +42,17 @@ pub struct Initialize<'info> {
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
 }
+
+
+/**
+ * stake program must be initialized by owner after deploying
+ * @params
+ *  reward amount per block
+ *  reward token decimals
+ *  stake token decimals
+ *  is token2, true if stake token is token 2022
+ *  bump of authority
+ */
 
 pub fn initialize_handler(
     ctx: Context<Initialize>,
