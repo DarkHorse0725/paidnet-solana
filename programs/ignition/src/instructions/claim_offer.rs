@@ -65,6 +65,11 @@ impl<'info> ClaimOffer<'info> {
     }
 }
 
+/**
+ *  Investors can claim offer token after claimable token after success pool
+ *  Collaborator had to be set claimable after completed pool
+ */
+
 pub fn claim_offer_handler(ctx: Context<ClaimOffer>) -> Result<()> {
     if !ctx.accounts.pool.claimable {
         return err!(ErrCode::NotClaimable);

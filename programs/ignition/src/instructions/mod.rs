@@ -9,7 +9,6 @@ pub mod toggle_claimable;
 pub mod refund_purchase;
 pub mod emergency_cancel;
 pub mod update_tge_date;
-pub mod finalize_pool;
 
 pub use create_pool::*;
 pub use fund_offer::*;
@@ -22,4 +21,3 @@ pub use toggle_claimable::*;
 pub use refund_purchase::*;
 pub use emergency_cancel::*;
 pub use update_tge_date::*;
-pub use finalize_pool::*;

@@ -75,7 +75,4 @@ pub mod ignition {
         update_tge_date_handler(ctx, tge_date)
     }
 
-    pub fn finalize_pool(ctx: Context<FinalizePool>) -> Result<()> {
-        finalize_pool_handler(ctx)
-    }
 }

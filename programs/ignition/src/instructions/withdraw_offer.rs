@@ -12,8 +12,10 @@ pub struct WithdrawOffer<'info> {
     #[account(mut)]
     pub owner: Signer<'info>,
 
+    // mint address of offer token
     pub offer_mint: Box<InterfaceAccount<'info, token_interface::Mint>>,
 
+    // offer token account of owner
     #[account(mut)]
     pub owner_offer_token: Box<InterfaceAccount<'info, token_interface::TokenAccount>>,
 
@@ -21,6 +23,7 @@ pub struct WithdrawOffer<'info> {
     #[account(seeds = [b"authority", pool.key().as_ref()], bump)]
     pub authority: AccountInfo<'info>,
 
+    // offer token vault of pool
     #[account(
         seeds = [b"offer-vault", pool.key().as_ref()],
         bump,
@@ -29,6 +32,7 @@ pub struct WithdrawOffer<'info> {
     )]
     pub offer_vault: Box<InterfaceAccount<'info, token_interface::TokenAccount>>,
 
+    // pool account, signer must be owner of pool
     #[account(mut, has_one = owner, close = owner)]
     pub pool: Box<Account<'info, Pool>>,
     pub token_program: Interface<'info, token_interface::TokenInterface>,
@@ -58,6 +62,10 @@ impl<'info> WithdrawOffer<'info> {
     }
 }
 
+/**
+ * Collaborator can withdraw offer token after tge date if pool was failed
+ * tranfer functions is implemented for both of token 2000 and token 2022
+ */
 pub fn withdraw_offer_handler(ctx: Context<WithdrawOffer>) -> Result<()> {
     let now: i64 = Clock::get().unwrap().unix_timestamp;
     if now < ctx.accounts.pool.tge_date {

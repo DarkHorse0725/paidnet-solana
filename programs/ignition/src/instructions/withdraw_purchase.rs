@@ -10,18 +10,21 @@ use crate::{Pool, DENOMINATOR};
 pub struct WithdrawPurchase<'info> {
     #[account(mut)]
     pub owner: Signer<'info>,
-
+    // mint address of purchase token, usually usdc, or usdt
     pub purchase_mint: Box<Account<'info, Mint>>,
 
+    //  purchase token account of owner
     #[account(mut, token::mint = purchase_mint)]
     pub owner_purchase_token: Box<Account<'info, TokenAccount>>,
     /// CHECK: This is not dangerous because we don't read or write from this account
     #[account(seeds = [b"authority", pool.key().as_ref()], bump)]
     pub authority: AccountInfo<'info>,
 
-    #[account(mut)]
+    // pool account, signer must be owner of pool
+    #[account(mut, has_one = owner)]
     pub pool: Box<Account<'info, Pool>>,
 
+    // purchase token vault of pool
     #[account(
         mut,
         token::mint = purchase_mint,
@@ -29,6 +32,7 @@ pub struct WithdrawPurchase<'info> {
     )]
     pub purchase_vault: Box<Account<'info, TokenAccount>>,
 
+    // reward token pot of stake program
     #[account(mut)]
     pub reward_pot: Box<Account<'info, TokenAccount>>,
     pub token_program: Program<'info, Token>,
@@ -59,6 +63,13 @@ impl<'info> WithdrawPurchase<'info> {
         )
     }
 }
+
+/**
+ * Collaborator can withdraw purchase token after success pool.
+ * when withdraw purchase token, token fee of collaborator and participant fee of investors will be
+ * sent to reward pot of stake program.
+ * it is calling cpi fund function of stake program to send fee amount as reward
+ */
 
 pub fn withdraw_purchase_handler(ctx: Context<WithdrawPurchase>) -> Result<()> {
     let project_fee: u64 = ctx.accounts.pool.total_collect_amount

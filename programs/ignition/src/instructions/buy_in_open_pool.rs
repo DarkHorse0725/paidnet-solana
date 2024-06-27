@@ -56,6 +56,12 @@ impl<'info> BuyInOpenPool<'info> {
     }
 }
 
+/**
+ * Investors can buy offer token in open pool
+ * There is 2 types of limit for kyc user and for not kyc user
+ * mercle tree of kyc user will be implemented later
+ */
+
 pub fn buy_in_open_pool_handler(ctx: Context<BuyInOpenPool>, amount: u64) -> Result<()> {
     let now: i64 = Clock::get().unwrap().unix_timestamp;
     if now < ctx.accounts.pool.open_start || now > ctx.accounts.pool.open_end {

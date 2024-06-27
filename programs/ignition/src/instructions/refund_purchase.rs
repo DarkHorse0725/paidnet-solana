@@ -8,11 +8,14 @@ pub struct RefundPurchase<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
 
+    // mint address of purchase token
     pub purchase_mint: Box<Account<'info, Mint>>,
 
+    // purchase tokena account of investor
     #[account(mut)]
     pub user_purchase_token: Box<Account<'info, TokenAccount>>,
 
+    // buyer account of investor
     #[account(
         mut,
         seeds = [b"buyer", pool.key().as_ref(), user.key().as_ref()],
@@ -24,6 +27,7 @@ pub struct RefundPurchase<'info> {
     #[account(seeds = [b"authority", pool.key().as_ref()], bump)]
     pub authority: AccountInfo<'info>,
 
+    // purchase token vault of pool
     #[account(
         mut,
         seeds = [b"purchase-vault", pool.key().as_ref()],
@@ -33,6 +37,7 @@ pub struct RefundPurchase<'info> {
     )]
     pub purchase_vault: Box<Account<'info, TokenAccount>>,
 
+    // pool account
     #[account(mut, constraint = pool.purchase_token.mint == purchase_mint.key())]
     pub pool: Box<Account<'info, Pool>>,
     pub token_program: Program<'info, Token>,
@@ -51,6 +56,10 @@ impl<'info> RefundPurchase<'info> {
     }
 }
 
+/**
+ * Investors can withdraw their purchase token after tge date if pool was failed.
+ * Callaborator had to cancel pool
+ */
 pub fn refund_purchase_handler(ctx: Context<RefundPurchase>) -> Result<()> {
     if !ctx.accounts.pool.emergency_cancelled {
         return err!(ErrCode::NotRefundable);
