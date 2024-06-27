@@ -61,6 +61,15 @@ impl<'info> FundOffer<'info> {
     }
 }
 
+/**
+ * Collaborator must be fund offer token after creating pool
+ * amount is total raise amount * rate
+ * offer token might be spl token 2000 or spl token 2022
+ * Collaborator must be disable token fee for fundraising
+ * After presale, they can update fee
+ */
+
+
 pub fn fund_offer_handler(ctx: Context<FundOffer>, amount: u64) -> Result<()> {
     if ctx.accounts.pool.is_token22 {
         transfer_checked(

@@ -10,11 +10,14 @@ pub struct BuyInEarlyPool<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
 
+    // purchase token mint address
     pub purchase_mint: Box<Account<'info, Mint>>,
 
+    // user purchase token account
     #[account(mut, token::mint = purchase_mint)]
     pub user_purchase_token: Box<Account<'info, TokenAccount>>,
 
+    // staker account from stake program
     #[account(constraint = staker.user == signer.key())]
     pub staker: Box<Account<'info, Staker>>,
 
@@ -22,6 +25,7 @@ pub struct BuyInEarlyPool<'info> {
     #[account(seeds = [b"authority", pool.key().as_ref()], bump)]
     pub authority: AccountInfo<'info>,
 
+    // buyer account of this pool
     #[account(
       init_if_needed,
       payer = signer,
@@ -41,6 +45,7 @@ pub struct BuyInEarlyPool<'info> {
     )]
     pub purchase_vault: Box<Account<'info, TokenAccount>>,
 
+    // pool account, purchase mint address must be same with the address of purchase token in pool account
     #[account(mut, constraint = pool.purchase_token.mint == purchase_mint.key())]
     pub pool: Box<Account<'info, Pool>>,
     pub token_program: Program<'info, Token>,
@@ -59,6 +64,15 @@ impl<'info> BuyInEarlyPool<'info> {
         )
     }
 }
+
+/**
+ * Investor can buy token in early pool
+ * They must be stake minimum stake amount to joing early pool
+ * @param amount is purchase token amount
+ * purchse token is stable tokens like usdt or usdc
+ * Investors has limit to buy token. limit is based on purchase token
+ */
+
 
 pub fn buy_in_early_pool_handler(ctx: Context<BuyInEarlyPool>, amount: u64) -> Result<()> {
     let now: i64 = Clock::get().unwrap().unix_timestamp;
