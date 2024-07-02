@@ -1,11 +1,11 @@
-use anchor_lang::prelude::*;
+use anchor_lang::{prelude::*, solana_program::program_option::COption};
 use anchor_spl::{
-    token::{transfer, Transfer},
+    token::{burn, transfer, Burn, Transfer},
     token_2022::{transfer_checked, TransferChecked},
     token_interface,
 };
 
-use crate::{error::ErrorCode, AppState, Staker, AUTHORITY_SEED, STAKER_SEED, STAKE_VAULT_SEED};
+use crate::{error::ErrorCode, AppState, Staker, AUTHORITY_SEED, REWARD_DENOMINATOR, STAKER_SEED, STAKE_VAULT_SEED};
 
 #[derive(Accounts)]
 pub struct Unstake<'info> {
@@ -13,12 +13,19 @@ pub struct Unstake<'info> {
     pub signer: Signer<'info>,
 
     // mint address of stake token
-    pub stake_mint: Box<InterfaceAccount<'info, token_interface::Mint>>,
+    pub paid: Box<InterfaceAccount<'info, token_interface::Mint>>,
+    #[account(
+        mut,
+        constraint = s_paid.mint_authority == COption::Some(authority.key()),
+        constraint = s_paid.freeze_authority.is_none(),
+    )]
+    pub s_paid: Box<InterfaceAccount<'info, token_interface::Mint>>,
 
     // stake token account of user
     #[account(mut)]
-    pub user_stake_token: Box<InterfaceAccount<'info, token_interface::TokenAccount>>,
-
+    pub user_paid_account: Box<InterfaceAccount<'info, token_interface::TokenAccount>>,
+    #[account(mut)]
+    pub user_s_paid_account: Box<InterfaceAccount<'info, token_interface::TokenAccount>>,
     /// CHECK: This is not dangerous because we don't read or write from this account
     #[account(seeds = [AUTHORITY_SEED, app_state.key().as_ref()], bump)]
     pub authority: AccountInfo<'info>,
@@ -27,7 +34,7 @@ pub struct Unstake<'info> {
     #[account(
       init_if_needed,
       payer = signer,
-      token::mint = stake_mint,
+      token::mint = paid,
       token::authority = authority,
       seeds = [STAKE_VAULT_SEED],
       bump,
@@ -54,9 +61,9 @@ impl<'info> Unstake<'info> {
         let cpi_program: AccountInfo = self.token_program.to_account_info();
         let cpi_accounts: TransferChecked = TransferChecked {
             from: self.stake_vault.to_account_info(),
-            to: self.user_stake_token.to_account_info(),
+            to: self.user_paid_account.to_account_info(),
             authority: self.authority.to_account_info(),
-            mint: self.stake_mint.to_account_info(),
+            mint: self.paid.to_account_info(),
         };
 
         CpiContext::new(cpi_program, cpi_accounts)
@@ -66,10 +73,18 @@ impl<'info> Unstake<'info> {
             self.token_program.to_account_info(),
             Transfer {
                 from: self.stake_vault.to_account_info(),
-                to: self.user_stake_token.to_account_info(),
+                to: self.user_paid_account.to_account_info(),
                 authority: self.authority.to_account_info(),
             },
         )
+    }
+    fn to_burn_context(&self) -> CpiContext<'_, '_, '_, 'info, Burn<'info>> {
+        let cpi_accounts = Burn {
+            mint: self.s_paid.to_account_info().clone(),
+            from: self.user_s_paid_account.to_account_info().clone(),
+            authority: self.signer.to_account_info().clone(),
+        };
+        CpiContext::new(self.token_program.to_account_info(), cpi_accounts)
     }
 }
 
@@ -81,26 +96,28 @@ pub fn unstake_handler(ctx: Context<Unstake>, amount: u64) -> Result<()> {
     if amount > ctx.accounts.staker.total_amount {
         return err!(ErrorCode::InvalidUnstakeAmount);
     }
+    let real_amount: u64 = amount - amount * ctx.accounts.app_state.fuel_percentage as u64 / REWARD_DENOMINATOR;
     let seeds: &[&[u8]; 3] = &[
         AUTHORITY_SEED,
         ctx.accounts.app_state.to_account_info().key.as_ref(),
         &[ctx.accounts.app_state.bump],
     ];
     let signer_seeds: &[&[&[u8]]; 1] = &[&seeds[..]];
-    if ctx.accounts.app_state.stake_token.is_token2 {
+    if ctx.accounts.app_state.is_token2022 {
         transfer_checked(
             ctx.accounts
                 .transfer_checked_ctx()
                 .with_signer(signer_seeds),
-            amount,
-            ctx.accounts.app_state.stake_token.decimals,
+                real_amount,
+            ctx.accounts.paid.decimals,
         )?;
     } else {
         transfer(
             ctx.accounts.transfer_ctx().with_signer(signer_seeds),
-            amount,
+            real_amount,
         )?;
     }
+    burn(ctx.accounts.to_burn_context(), amount)?;
     let staker: &mut Box<Account<Staker>> = &mut ctx.accounts.staker;
     staker.total_amount -= amount;
     let now: i64 = Clock::get().unwrap().unix_timestamp;

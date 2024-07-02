@@ -10,8 +10,10 @@ pub struct AppState {
   pub staker_counts: u64,
   pub owner: Pubkey,
   pub initialized: bool,
-  pub reward_token: RewardToken,
-  pub stake_token: StakeToken,
+  pub s_paid: Pubkey,
+  pub paid: Pubkey,
+  pub fuel_percentage: u16,
+  pub is_token2022: bool,
   pub bump: u8,
 }
 
@@ -24,15 +26,13 @@ impl AppState {
     }
 }
 
-#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
-pub struct RewardToken {
-    pub mint: Pubkey,
-    pub decimals: u8,
-}
+// #[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
+// pub struct RewardToken {
+//     pub mint: Pubkey,
+// }
 
-#[derive(Debug, Clone, AnchorDeserialize, AnchorSerialize)]
-pub struct StakeToken {
-    pub mint: Pubkey,
-    pub decimals: u8,
-    pub is_token2: bool,
-}
+// #[derive(Debug, Clone, AnchorDeserialize, AnchorSerialize)]
+// pub struct StakeToken {
+//     pub mint: Pubkey,
+//     pub is_token2: bool,
+// }

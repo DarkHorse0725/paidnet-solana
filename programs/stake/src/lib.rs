@@ -18,19 +18,11 @@ pub mod stake {
     pub fn initialize(
         ctx: Context<Initialize>,
         reward_per_block: u64,
-        reward_decimals: u8,
-        stake_decimals: u8,
+        fuel_percent: u16,
         is_token2: bool,
         bump: u8,
     ) -> Result<()> {
-        initialize_handler(
-            ctx,
-            reward_per_block,
-            reward_decimals,
-            stake_decimals,
-            is_token2,
-            bump,
-        )
+        initialize_handler(ctx, reward_per_block, fuel_percent, is_token2, bump)
     }
 
     pub fn update_state(ctx: Context<UpdateState>, reward_per_block: u64) -> Result<()> {

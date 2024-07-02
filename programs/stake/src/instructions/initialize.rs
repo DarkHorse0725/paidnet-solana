@@ -1,8 +1,10 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::{Mint, Token, TokenAccount};
+use anchor_lang::solana_program::program_option::COption;
+use anchor_spl::token::Token;
+use anchor_spl::token_interface;
 
 use crate::error::ErrorCode;
-use crate::{AppState, APP_STATE_SEED, AUTHORITY_SEED, REWARD_POT_SEED};
+use crate::{AppState, APP_STATE_SEED, AUTHORITY_SEED};
 use std::mem::size_of;
 
 #[derive(Accounts)]
@@ -10,25 +12,19 @@ pub struct Initialize<'info> {
     #[account(mut)]
     pub creator: Signer<'info>,
 
-    // mint address of reward token
-    pub reward_mint: Box<Account<'info, Mint>>,
     /// CHECK:
-    pub stake_mint: UncheckedAccount<'info>,
+    pub paid: UncheckedAccount<'info>,
 
     /// CHECK: This is not dangerous because we don't read or write from this account
     #[account(seeds = [AUTHORITY_SEED, app_state.key().as_ref()], bump)]
     pub authority: AccountInfo<'info>,
 
-    // reward token pot of stake program
     #[account(
-      init,
-      payer = creator,
-      token::mint = reward_mint,
-      token::authority = authority,
-      seeds = [REWARD_POT_SEED],
-      bump,
+      mut,
+      constraint = s_paid.mint_authority == COption::Some(authority.key()),
+      constraint = s_paid.freeze_authority.is_none(),
     )]
-    pub reward_pot: Box<Account<'info, TokenAccount>>,
+    pub s_paid: Box<InterfaceAccount<'info, token_interface::Mint>>,
 
     // app state of account of stake program
     #[account(
@@ -57,8 +53,7 @@ pub struct Initialize<'info> {
 pub fn initialize_handler(
     ctx: Context<Initialize>,
     reward_per_block: u64,
-    reward_decimals: u8,
-    stake_decimals: u8,
+    fuel_percent: u16,
     is_token2: bool,
     bump: u8,
 ) -> Result<()> {
@@ -72,11 +67,10 @@ pub fn initialize_handler(
     app_state.staker_counts = 0;
     app_state.reward_amount = 0;
     app_state.total_staked = 0;
-    app_state.reward_token.mint = ctx.accounts.reward_mint.key();
-    app_state.reward_token.decimals = reward_decimals;
-    app_state.stake_token.mint = ctx.accounts.stake_mint.key();
-    app_state.stake_token.decimals = stake_decimals;
-    app_state.stake_token.is_token2 = is_token2;
+    app_state.paid = ctx.accounts.paid.key();
+    app_state.s_paid= ctx.accounts.s_paid.key();
+    app_state.fuel_percentage = fuel_percent;
+    app_state.is_token2022 = is_token2;
     app_state.bump = bump;
     Ok(())
 }
