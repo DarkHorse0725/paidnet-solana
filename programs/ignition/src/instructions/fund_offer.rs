@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     token::{transfer, Transfer},
-    token_2022::{transfer_checked, TransferChecked},
+    token_2022::{transfer_checked, TransferChecked, ID},
     token_interface,
 };
 
@@ -71,11 +71,11 @@ impl<'info> FundOffer<'info> {
 
 
 pub fn fund_offer_handler(ctx: Context<FundOffer>, amount: u64) -> Result<()> {
-    if ctx.accounts.pool.is_token22 {
+    if ctx.accounts.token_program.key() == ID {
         transfer_checked(
             ctx.accounts.transfer_checked_ctx(),
             amount,
-            ctx.accounts.pool.offer_token.decimals,
+            ctx.accounts.offer_mint.decimals,
         )?;
     } else {
         transfer(ctx.accounts.transfer_ctx(), amount)?;

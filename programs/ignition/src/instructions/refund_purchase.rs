@@ -38,7 +38,7 @@ pub struct RefundPurchase<'info> {
     pub purchase_vault: Box<Account<'info, TokenAccount>>,
 
     // pool account
-    #[account(mut, constraint = pool.purchase_token.mint == purchase_mint.key())]
+    #[account(mut, constraint = pool.purchase_token == purchase_mint.key())]
     pub pool: Box<Account<'info, Pool>>,
     pub token_program: Program<'info, Token>,
 }

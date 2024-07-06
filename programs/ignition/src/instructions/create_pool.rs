@@ -71,9 +71,6 @@ pub struct CreatePool<'info> {
 pub fn create_pool_handler(
     ctx: Context<CreatePool>,
     uints: [u64; 18],
-    offer_decimals: u8,
-    purchase_decimals: u8,
-    is_token22: bool,
     private: bool,
     bump: u8,
 ) -> Result<()> {
@@ -124,10 +121,7 @@ pub fn create_pool_handler(
     pool.collect_in_early_pool = 0;
     pool.sold_in_early_pool = 0;
     pool.offer_token.mint = ctx.accounts.offer_mint.key();
-    pool.offer_token.decimals = offer_decimals;
-    pool.purchase_token.mint = ctx.accounts.purchase_mint.key();
-    pool.purchase_token.decimals = purchase_decimals;
-    pool.is_token22 = is_token22;
+    pool.purchase_token = ctx.accounts.purchase_mint.key();
     pool.total_fee = 0;
     pool.private_raise = private;
     pool.bump = bump;

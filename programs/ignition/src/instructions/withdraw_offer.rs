@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     token::{transfer, Transfer},
-    token_2022::{transfer_checked, TransferChecked},
+    token_2022::{transfer_checked, TransferChecked, ID},
     token_interface,
 };
 
@@ -78,13 +78,13 @@ pub fn withdraw_offer_handler(ctx: Context<WithdrawOffer>) -> Result<()> {
         &[ctx.accounts.pool.bump],
     ];
     let signer_seeds: &[&[&[u8]]; 1] = &[&seeds[..]];
-    if ctx.accounts.pool.is_token22 {
+    if ctx.accounts.token_program.key() == ID {
         transfer_checked(
             ctx.accounts
                 .transfer_checked_ctx()
                 .with_signer(signer_seeds),
             amount,
-            ctx.accounts.pool.offer_token.decimals,
+            ctx.accounts.offer_mint.decimals,
         )?;
     } else {
         transfer(

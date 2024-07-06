@@ -1,6 +1,9 @@
 use crate::{error::ErrCode, Buyer, Pool, DENOMINATOR};
 use anchor_lang::prelude::*;
-use anchor_spl::token::{transfer, Mint, Token, TokenAccount, Transfer};
+use anchor_spl::{
+    token::{transfer, Mint, Token, TokenAccount, Transfer},
+    token_interface,
+};
 use std::mem::size_of;
 
 #[derive(Accounts)]
@@ -9,6 +12,7 @@ pub struct BuyInOpenPool<'info> {
     pub signer: Signer<'info>,
 
     pub purchase_mint: Box<Account<'info, Mint>>,
+    pub offer_mint: Box<InterfaceAccount<'info, token_interface::Mint>>,
 
     #[account(mut, token::mint = purchase_mint)]
     pub user_purchase_token: Box<Account<'info, TokenAccount>>,
@@ -37,9 +41,10 @@ pub struct BuyInOpenPool<'info> {
     )]
     pub purchase_vault: Box<Account<'info, TokenAccount>>,
 
-    #[account(mut, constraint = pool.purchase_token.mint == purchase_mint.key())]
+    #[account(mut, constraint = pool.purchase_token == purchase_mint.key())]
     pub pool: Box<Account<'info, Pool>>,
     pub token_program: Program<'info, Token>,
+    pub token_program_offer: Interface<'info, token_interface::TokenInterface>,
     pub system_program: Program<'info, System>,
 }
 
@@ -73,10 +78,11 @@ pub fn buy_in_open_pool_handler(ctx: Context<BuyInOpenPool>, amount: u64) -> Res
     let buyer: &mut Box<Account<Buyer>> = &mut ctx.accounts.buyer;
     buyer.principal += amount - fee_amount;
     buyer.fee += fee_amount;
-    let offer_amount: u64 = ctx
-        .accounts
-        .pool
-        .calculate_offer_amount(amount - fee_amount);
+    let offer_amount: u64 = ctx.accounts.pool.calculate_offer_amount(
+        amount - fee_amount,
+        ctx.accounts.purchase_mint.decimals,
+        ctx.accounts.offer_mint.decimals,
+    );
     buyer.total_amount += offer_amount;
     let pool: &mut Box<Account<Pool>> = &mut ctx.accounts.pool;
     pool.total_collect_amount += amount - fee_amount;
